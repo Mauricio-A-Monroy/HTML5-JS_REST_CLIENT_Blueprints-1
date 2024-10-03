@@ -1,0 +1,15 @@
+¿Qué condiciones de carrera se podrían presentar?
+    Tenemos 2 condiciones de carreras:
+    - La primera es cuando se actualiza un plano, porque si 2 o más usuarios intentan actualizar un mismo plano puede generar errores si no se controla el acceso a este.
+    - La segunda es cuando se crean nuevos planos, ya que si se crean 2 o más planos al mismo tiempo es posible que pocos de estos sean añadidos al hashmap donde se almacenan.
+¿Cuáles son las respectivas regiones críticas?
+    Las 2 regiones críticas están en métodos de la clase BlueprintsServices:
+    - La región crítica para la primera condición de carrera es:
+        public void updateBlueprint(String author, String name, List<Point> newPoints) throws BlueprintNotFoundException {
+                Blueprint bp = bpp.getBlueprint(author, name);
+                bp.setPoints(newPoints);
+            }
+    - La región crítica para la segunda condición de carrera es:
+        public void addNewBlueprint(Blueprint bp) throws BlueprintPersistenceException {
+                bpp.saveBlueprint(bp);
+            }
