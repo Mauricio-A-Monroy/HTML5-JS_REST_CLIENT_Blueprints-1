@@ -1,0 +1,87 @@
+.grid-container {
+    display: grid;
+    grid-template-columns: auto auto auto;
+    gap: 20px;
+    padding: 10px;
+}
+
+#title {
+    grid-column-start: 1;
+    grid-column-end: 4;
+    grid-row-start: 1;
+    grid-row-end: 2;
+    padding: 10px;
+}
+
+.author-section {
+    grid-column-start: 1;
+    grid-column-end: 4;
+    grid-row-start: 2;
+    grid-row-end: 4;
+    padding-left: 20px;
+}
+
+.author-section h2{
+    margin-top : 15px;
+}
+
+.author-table{
+    grid-column-start: 1;
+    grid-column-end: 2;
+    grid-row-start: 3;
+    grid-row-end: 6;
+    border-collapse: collapse;
+    padding: 20px;
+}
+
+#blueprintTable{
+    border: 1px solid #000;
+}
+
+th, td, tr {
+    text-align: center;
+    vertical-align: middle;
+    border: 2px solid #000;
+    font-size: 15px;
+    padding: 10px;
+}
+
+.blueprint-display {
+    grid-column: 2 / 6;
+    grid-row: 3 / 6;
+    padding: 10px;
+}
+
+#myCanvas {
+    grid-column: 3;
+    grid-row: 4;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+#blueprintTitle {
+    font-size: 1.2em;
+    text-align: left;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+#userPoints {
+    font-size: 30px;
+    line-height: 1.5;
+    padding-top: 10px;
+    padding-left: 40px;
+}
+
+.button-container {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-start;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}

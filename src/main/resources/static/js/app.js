@@ -47,7 +47,7 @@ var app = (function(){
                     deleteBlueprint();
                 }
             });
-            $("body").append(deleteButton);
+            $(".button-container").append(deleteButton);
         }
         api.getBlueprintsByNameAndAuthor(author, name, drawBlueprint);
    };
@@ -58,10 +58,15 @@ var app = (function(){
          const c = document.getElementById("myCanvas");
          const ctx = c.getContext("2d");
          clearCanvas();
-         ctx.moveTo(blueprint.points[0].x,blueprint.points[0].y);
+
+         const rect = c.getBoundingClientRect();
+         console.log(rect);
+
+         ctx.beginPath();
+         ctx.moveTo(blueprint.points[0].x, blueprint.points[0].y);
          for (var i = 1 ; i < blueprint.points.length ; i++){
-             ctx.lineTo(blueprint.points[i].x,blueprint.points[i].y);
-             ctx.moveTo(blueprint.points[i].x,blueprint.points[i].y);
+             ctx.lineTo(blueprint.points[i].x, blueprint.points[i].y);
+             ctx.moveTo(blueprint.points[i].x, blueprint.points[i].y);
          }
          ctx.stroke();
   };
@@ -80,9 +85,10 @@ var app = (function(){
             c.addEventListener("pointerdown", function(event){
                 if(bpname != ""){
                     const rect = c.getBoundingClientRect();
-                    var posX = event.pageX - Math.floor(rect.left);
-                    var posY = event.pageY - Math.floor(rect.top);
+                    var posX = event.clientX - Math.floor(rect.left);
+                    var posY = event.clientY - Math.floor(rect.top);
                     points.push({"x": posX, "y": posY});
+
                     ctx.lineTo(posX, posY);
                     ctx.moveTo(posX, posY);
                     ctx.stroke();
@@ -126,9 +132,10 @@ var app = (function(){
         var inputElement = $('<input>', {
             type: 'text',
             id: 'blueprintName',
-            placeholder: 'Ingrese el nombre del plano'
+            placeholder: 'Ingrese el nombre del plano',
+            size: 30
         });
-        $("body").append(inputElement);
+        $(".create-blueprint").append(inputElement);
    };
 
    var deleteBlueprint = function(){
