@@ -47,6 +47,9 @@ public class InMemoryBlueprintPersistence implements BlueprintsPersistence{
         if (blueprints.containsKey(new Tuple<>(bp.getAuthor(),bp.getName()))){
             throw new BlueprintPersistenceException("The given blueprint already exists: "+bp);
         }
+        else if(bp.getName().equals("")){
+            throw new BlueprintPersistenceException("The name can't be null");
+        }
         else{
             blueprints.put(new Tuple<>(bp.getAuthor(),bp.getName()), bp);
         }        
@@ -56,7 +59,7 @@ public class InMemoryBlueprintPersistence implements BlueprintsPersistence{
     public Blueprint getBlueprint(String author, String bprintname) throws BlueprintNotFoundException {
         Blueprint bp = blueprints.get(new Tuple<>(author, bprintname));
         if (bp == null){
-            throw new BlueprintNotFoundException("No existes el plano");
+            throw new BlueprintNotFoundException("No existe el plano");
         }
         return bp;
     }
@@ -82,9 +85,14 @@ public class InMemoryBlueprintPersistence implements BlueprintsPersistence{
             }
         }
         if (blueprintSet.isEmpty()){
-            throw new BlueprintNotFoundException("Do not exist BluePrints created by this author");
+            throw new BlueprintNotFoundException("Do not exist Blueprints created by this author");
         }
         return blueprintSet;
+    }
+
+    @Override
+    public void deleteBlueprint(String author, String bpname){
+        blueprints.remove(new Tuple<>(author, bpname));
     }
     
 }

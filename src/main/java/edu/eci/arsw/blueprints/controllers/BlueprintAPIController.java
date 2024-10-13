@@ -22,7 +22,7 @@ import java.util.List;
  * @author hcadavid
  */
 @RestController
-    @RequestMapping(value = "/blueprints")
+@RequestMapping(value = "/blueprints")
 public class BlueprintAPIController {
 
     @Autowired
@@ -54,6 +54,7 @@ public class BlueprintAPIController {
 
     @RequestMapping(method = RequestMethod.POST)
     public ResponseEntity<?> addNewBluePrint(@RequestBody Blueprint blueprint){
+        System.out.println(blueprint.toString());
         try {
             blueprintsServices.addNewBlueprint(blueprint);
         } catch (BlueprintPersistenceException e) {
@@ -83,6 +84,13 @@ public class BlueprintAPIController {
     public ResponseEntity<?> getUpdateLog() {
         List<String> updateLog = blueprintsServices.testUpdateWithThreads();
         return new ResponseEntity<>(updateLog, HttpStatus.ACCEPTED);
+    }
+
+    @RequestMapping(value = "{author}/{bpname}", method = RequestMethod.DELETE)
+    public ResponseEntity<?> deleteBlueprint(@PathVariable String author,
+                                             @PathVariable String bpname){
+        blueprintsServices.deleteBlueprint(author, bpname);
+        return new ResponseEntity<>(HttpStatus.ACCEPTED);
     }
 }
 

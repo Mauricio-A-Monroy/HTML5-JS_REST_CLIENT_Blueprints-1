@@ -63,7 +63,10 @@ public class BlueprintsServices {
     public synchronized void updateBlueprint(String author, String name, List<Point> newPoints) throws BlueprintNotFoundException {
         Blueprint bp = bpp.getBlueprint(author, name);
         bp.setPoints(newPoints);
-        System.out.println(bp.getPoints());
+    }
+
+    public void deleteBlueprint(String author, String name){
+        bpp.deleteBlueprint(author, name);
     }
 
     public int testThreads(){
