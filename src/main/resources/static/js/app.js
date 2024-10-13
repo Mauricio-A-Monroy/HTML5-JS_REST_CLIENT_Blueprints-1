@@ -60,15 +60,17 @@ var app = (function(){
          clearCanvas();
 
          const rect = c.getBoundingClientRect();
-         console.log(rect);
 
-         ctx.beginPath();
-         ctx.moveTo(blueprint.points[0].x, blueprint.points[0].y);
-         for (var i = 1 ; i < blueprint.points.length ; i++){
-             ctx.lineTo(blueprint.points[i].x, blueprint.points[i].y);
-             ctx.moveTo(blueprint.points[i].x, blueprint.points[i].y);
+         if(points.length != 0){
+            ctx.beginPath();
+            ctx.moveTo(blueprint.points[0].x, blueprint.points[0].y);
+            for (var i = 1 ; i < blueprint.points.length ; i++){
+                ctx.lineTo(blueprint.points[i].x, blueprint.points[i].y);
+                ctx.moveTo(blueprint.points[i].x, blueprint.points[i].y);
+            }
+            ctx.stroke();
          }
-         ctx.stroke();
+
   };
 
   var clearCanvas = function(){
@@ -83,12 +85,11 @@ var app = (function(){
         var ctx = c.getContext("2d");
         if(window.PointerEvent) {
             c.addEventListener("pointerdown", function(event){
-                if(bpname != ""){
+                if(bpname != "" || createBp){
                     const rect = c.getBoundingClientRect();
                     var posX = event.clientX - Math.floor(rect.left);
                     var posY = event.clientY - Math.floor(rect.top);
                     points.push({"x": posX, "y": posY});
-
                     ctx.lineTo(posX, posY);
                     ctx.moveTo(posX, posY);
                     ctx.stroke();
@@ -97,7 +98,7 @@ var app = (function(){
         }
         else {
             c.addEventListener("mousedown", function(event){
-                if(bpname != ""){
+                if(bpname != "" || createBp){
                     const rect = c.getBoundingClientRect();
                     var posX = event.pageX - Math.floor(rect.left);
                     var posY = event.pageY - Math.floor(rect.top);
@@ -129,13 +130,15 @@ var app = (function(){
         createBp = true;
         clearCanvas();
         points = [];
-        var inputElement = $('<input>', {
-            type: 'text',
-            id: 'blueprintName',
-            placeholder: 'Ingrese el nombre del plano',
-            size: 30
-        });
-        $(".create-blueprint").append(inputElement);
+        if($("#blueprintName").length == 0){
+            var inputElement = $('<input>', {
+                type: 'text',
+                id: 'blueprintName',
+                placeholder: 'Ingrese el nombre del plano',
+                size: 30
+            });
+            $(".create-blueprint").append(inputElement);
+        }
    };
 
    var deleteBlueprint = function(){
