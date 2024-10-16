@@ -24,7 +24,7 @@ var app = (function(){
          blueprints = authorsBlueprints.map(bp => ({name: bp.name, numberOfPoints: bp.points.length}));
          blueprints.map(
              bp => {
-                var markup = "<tr><td>" + bp.name + "</td><td>" + bp.numberOfPoints + "</td> + <td><button type='button' onclick=\"app.getBlueprintsByNameAndAuthor('"+author+"','"+bp.name+"')\">Open</button></td></tr>";
+                var markup = "<tr><td>" + bp.name + "</td><td>" + bp.numberOfPoints + "</td> + <td><button type='button' class='openButton' onclick=\"app.getBlueprintsByNameAndAuthor('"+author+"','"+bp.name+"')\">Open</button></td></tr>";
                 $("#blueprintTable tbody").append(markup);
                 }
          )
