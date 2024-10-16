@@ -338,19 +338,19 @@ apiclient=(function(){
 
 ```javascript
 	var initCanvas = function(){
-        var c = document.getElementById("myCanvas");
-        var ctx = c.getContext("2d");
-        if(window.PointerEvent) {
-            c.addEventListener("pointerdown", function(event){
-                alert('pointerdown at '+event.pageX+','+event.pageY);
-            });
-        }
-        else {
-            c.addEventListener("mousedown", function(event){
-                alert('mousedown at '+event.clientX+','+event.clientY); 
-            });
-        }
-   };
+	var c = document.getElementById("myCanvas");
+	var ctx = c.getContext("2d");
+	if(window.PointerEvent) {
+	    c.addEventListener("pointerdown", function(event){
+		alert('pointerdown at '+event.pageX+','+event.pageY);
+	    });
+	}
+	else {
+	    c.addEventListener("mousedown", function(event){
+		alert('mousedown at '+event.clientX+','+event.clientY); 
+	    });
+	}
+	};
 ```
 
 2. Agregue lo que haga falta en sus módulos para que cuando se capturen nuevos puntos en el canvas abierto (si no se ha seleccionado un canvas NO se debe hacer nada):
@@ -359,35 +359,35 @@ apiclient=(function(){
 
 ```javascript
 	var initCanvas = function(){
-        var c = document.getElementById("myCanvas");
-        var ctx = c.getContext("2d");
-        if(window.PointerEvent) {
-            c.addEventListener("pointerdown", function(event){
-                if(bpname != "" || createBp){
-                    const rect = c.getBoundingClientRect();
-                    var posX = event.clientX - Math.floor(rect.left);
-                    var posY = event.clientY - Math.floor(rect.top);
-                    points.push({"x": posX, "y": posY});
-                    ctx.lineTo(posX, posY);
-                    ctx.moveTo(posX, posY);
-                    ctx.stroke();
-                }
-            });
-        }
-        else {
-            c.addEventListener("mousedown", function(event){
-                if(bpname != "" || createBp){
-                    const rect = c.getBoundingClientRect();
-                    var posX = event.pageX - Math.floor(rect.left);
-                    var posY = event.pageY - Math.floor(rect.top);
-                    points.push({"x": posX, "y": posY});
-                    ctx.lineTo(posX, posY);
-                    ctx.moveTo(posX, posY);
-                    ctx.stroke();
-                }
-            });
-        }
-   };
+	var c = document.getElementById("myCanvas");
+	var ctx = c.getContext("2d");
+	if(window.PointerEvent) {
+	    c.addEventListener("pointerdown", function(event){
+		if(bpname != "" || createBp){
+		    const rect = c.getBoundingClientRect();
+		    var posX = event.clientX - Math.floor(rect.left);
+		    var posY = event.clientY - Math.floor(rect.top);
+		    points.push({"x": posX, "y": posY});
+		    ctx.lineTo(posX, posY);
+		    ctx.moveTo(posX, posY);
+		    ctx.stroke();
+		}
+	    });
+	}
+	else {
+	    c.addEventListener("mousedown", function(event){
+		if(bpname != "" || createBp){
+		    const rect = c.getBoundingClientRect();
+		    var posX = event.pageX - Math.floor(rect.left);
+		    var posY = event.pageY - Math.floor(rect.top);
+		    points.push({"x": posX, "y": posY});
+		    ctx.lineTo(posX, posY);
+		    ctx.moveTo(posX, posY);
+		    ctx.stroke();
+		}
+	    });
+	}
+	};
 ```
 
 3. Agregue el botón Save/Update. Respetando la arquitectura de módulos actual del cliente, haga que al oprimirse el botón:
@@ -424,9 +424,9 @@ apiclient=(function(){
 			 const c = document.getElementById("myCanvas");
 			 const ctx = c.getContext("2d");
 			 clearCanvas();
-	
+		
 			 const rect = c.getBoundingClientRect();
-	
+		
 			 if(points.length != 0){
 				ctx.beginPath();
 				ctx.moveTo(blueprint.points[0].x, blueprint.points[0].y);
@@ -436,7 +436,7 @@ apiclient=(function(){
 				}
 				ctx.stroke();
 			 }
-	
+		
 		};
 		
 		var updateTable = function(authorsBlueprints){
@@ -455,13 +455,13 @@ apiclient=(function(){
 			 );
 			 $('#userPoints').text("Total user points: " + sumWithInitial);
 			 clearCanvas();
-	   };
-	
+		};
+		
 		var saveBlueprint = function(){
 			var promise = api.updateBlueprint(author, bpname, points);
 			promise.then(() => api.getBlueprintsByAuthor(author, updateTable))
 				   .then(() => api.getBlueprintsByNameAndAuthor(author, bpname, drawBlueprint));
-	   };
+		};
 	```
 	
 	apiclient.js
@@ -480,8 +480,8 @@ apiclient=(function(){
 			)
 			return promise;
 		};
-	
-	   var getBlueprintsByNameAndAuthor = function(authname, bpname, callback){
+		
+		var getBlueprintsByNameAndAuthor = function(authname, bpname, callback){
 		   var promise = $.get("http://localhost:8080/blueprints/"+authname+"/"+bpname)
 		   promise.then(
 				function(data) {
@@ -493,7 +493,7 @@ apiclient=(function(){
 		   );
 		   return promise;
 		};
-	
+		
 		var updateBlueprint = function(authname, bpname, points){
 			var promise = $.ajax({
 				url: 'http://localhost:8080/blueprints/' + authname + "/" + bpname,
@@ -508,8 +508,8 @@ apiclient=(function(){
 	index.html
    ```html
       <div class="button-container">
-				<button type="button" id="saveButton" onclick="app.saveBlueprint()">Save/Update Blueprint</button>
-			   </div>
+      		<button type="button" id="saveButton" onclick="app.saveBlueprint()">Save/Update Blueprint</button>
+      </div>
    ```
 
 
@@ -525,65 +525,65 @@ apiclient=(function(){
 	app.js
 
    ```javascript
-   		var createBp = false;
+	var createBp = false;
+
+	var createBlueprint = function(){
+		createBp = true;
+		clearCanvas();
+		points = [];
+		if($("#blueprintName").length == 0){
+			var inputElement = $('<input>', {
+				type: 'text',
+				id: 'blueprintName',
+				placeholder: 'Ingrese el nombre del plano',
+				size: 30
+			});
+			$(".create-blueprint").append(inputElement);
+		}
+	};
    
-		var createBlueprint = function(){
-			createBp = true;
-			clearCanvas();
-			points = [];
-			if($("#blueprintName").length == 0){
-				var inputElement = $('<input>', {
-					type: 'text',
-					id: 'blueprintName',
-					placeholder: 'Ingrese el nombre del plano',
-					size: 30
-				});
-				$(".create-blueprint").append(inputElement);
+	var saveBlueprint = function(){
+		var promise;
+		if(createBp){
+			bpname = $('#blueprintName').val();
+
+			if (points.length < 2) {
+				alert("Error: El plano debe tener al menos dos puntos.");
+				return;
 			}
-   		};
-   
-   		var saveBlueprint = function(){
-			var promise;
-			if(createBp){
-				bpname = $('#blueprintName').val();
-	
-				if (points.length < 2) {
-					alert("Error: El plano debe tener al menos dos puntos.");
-					return;
-				}
-				promise = api.createBlueprint(author, points, bpname);
-				createBp = false;
-				$('#blueprintName').remove();
-			}
-			else{
-				promise = api.updateBlueprint(author, bpname, points);
-			}
-			promise.then(() => api.getBlueprintsByAuthor(author, updateTable))
-				   .then(() => api.getBlueprintsByNameAndAuthor(author, bpname, drawBlueprint));
-   		};
+			promise = api.createBlueprint(author, points, bpname);
+			createBp = false;
+			$('#blueprintName').remove();
+		}
+		else{
+			promise = api.updateBlueprint(author, bpname, points);
+		}
+		promise.then(() => api.getBlueprintsByAuthor(author, updateTable))
+			   .then(() => api.getBlueprintsByNameAndAuthor(author, bpname, drawBlueprint));
+	};
    ```
 
 	apiclient.js
 
    ```javascript
-   		var createBlueprint = function(author, points, bpname){
-			var json = JSON.stringify({ author: author, points: points, name: bpname });
-			var promise = $.ajax({
-				url: 'http://localhost:8080/blueprints',
-				type: 'POST',
-				data: json,
-				contentType: "application/json"
-			})
-			return promise;
-    	}
+	var createBlueprint = function(author, points, bpname){
+		var json = JSON.stringify({ author: author, points: points, name: bpname });
+		var promise = $.ajax({
+			url: 'http://localhost:8080/blueprints',
+			type: 'POST',
+			data: json,
+			contentType: "application/json"
+		})
+		return promise;
+	}
    ```
 
 	index.html
 
    ```javascript
-   		<div class="create-blueprint">
-						<button type="button" id="createButton" onclick="app.createBlueprint()">Create Blueprint</button>
-                   </div>
+	<div class="create-blueprint">
+		<button type="button" id="createButton" onclick="app.createBlueprint()">Create Blueprint</button>
+	</div>
    ```
 
    5. Agregue el botón 'DELETE', de manera que (también con promesas):
@@ -595,39 +595,38 @@ apiclient=(function(){
 
       ```javascript
       
-      		var getBlueprintsByNameAndAuthor = function(author, name){
-						bpname = name;
-						if($("#deleteButton").length == 0){
-							var deleteButton = $('<button>', {
-								id: 'deleteButton',
-								text: 'Delete Blueprint',
-								click: function() {
-									deleteBlueprint();
-								}
-							});
-							$(".button-container").append(deleteButton);
-						}
-						api.getBlueprintsByNameAndAuthor(author, name, drawBlueprint);
-				   };
+              var getBlueprintsByNameAndAuthor = function(author, name){
+		bpname = name;
+		if($("#deleteButton").length == 0){
+			var deleteButton = $('<button>', {
+				id: 'deleteButton',
+				text: 'Delete Blueprint',
+				click: function() {
+					deleteBlueprint();
+				}
+			});
+			$(".button-container").append(deleteButton);
+		}
+		api.getBlueprintsByNameAndAuthor(author, name, drawBlueprint);
+	     };
       
-            var deleteBlueprint = function(){
-					 clearCanvas();
-                     var promise = api.deleteBlueprint(author, bpname);
-                     promise.then(() => api.getBlueprintsByAuthor(author, updateTable));
-                     $('#deleteButton').remove();
-   			};
+             var deleteBlueprint = function(){
+		     clearCanvas();
+		     var promise = api.deleteBlueprint(author, bpname);
+		     promise.then(() => api.getBlueprintsByAuthor(author, updateTable));
+		     $('#deleteButton').remove();
+	     };
       ```
 
       apiclient.js
 
       ```javascript
            var deleteBlueprint = function(author, bpname){
-           var promise = $.ajax({
-               url: 'http://localhost:8080/blueprints/' + author + "/" + bpname,
-               type: 'DELETE'
-           })
-
-           return promise;
+	           var promise = $.ajax({
+	               url: 'http://localhost:8080/blueprints/' + author + "/" + bpname,
+	               type: 'DELETE'
+	           })
+	           return promise;
        	   }
       ```
 
