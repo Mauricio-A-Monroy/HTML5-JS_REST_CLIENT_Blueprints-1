@@ -47,6 +47,41 @@
 
 4. Cree, en el directorio anterior, la página index.html, sólo con lo básico: título, campo para la captura del autor, botón de 'Get blueprints', campo <div> donde se mostrará el nombre del autor seleccionado, [la tabla HTML](https://www.w3schools.com/html/html_tables.asp) donde se mostrará el listado de planos (con sólo los encabezados), y un campo <div> donde se mostrará el total de puntos de los planos del autor. Recuerde asociarle identificadores a dichos componentes para facilitar su búsqueda mediante selectores.
 
+
+```html               
+    <!DOCTYPE html>
+<html>
+<head>
+    <title>Blueprints</title>
+</head>
+    <body onload="app.initCanvas()">
+        <div class="grid-container">
+            <h1 id="title">Blueprints</h1>
+
+            <div class="author-section">
+                <label id="author">Author</label>
+                <input type="text" id="name" name="name" size="10" />
+                <button type="button" id="getButton">Get Blueprints</button>
+            </div>
+
+            <div class="author-table">
+                <h2 id="selectedAuthor"></h2>
+                <table id="blueprintTable">
+                    <thead>
+                        <tr>
+                            <th>Blueprint name</th>
+                            <th>Number of points</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+                <p id="userPoints">Total user points: </p>
+            </div>
+        </div>
+    </body>
+</html>
+```
 5. En el elemento \<head\> de la página, agregue las referencia a las librerías de jQuery, Bootstrap y a la hoja de estilos de Bootstrap. 
     ```html
     <head>
@@ -69,11 +104,28 @@
     ```
     2. Al abrir la consola de desarrollador del navegador, NO deben aparecer mensajes de error 404 (es decir, que las librerías de JavaScript se cargaron correctamente).
 
+
+    ![image](https://github.com/user-attachments/assets/9eb5fb78-89e4-43e1-8e9c-4cb0ca0a4f1c)
+
 ## Front-End - Lógica
 
 1. Ahora, va a crear un Módulo JavaScript que, a manera de controlador, mantenga los estados y ofrezca las operaciones requeridas por la vista. Para esto tenga en cuenta el [patrón Módulo de JavaScript](https://toddmotto.com/mastering-the-module-pattern/), y cree un módulo en la ruta static/js/app.js .
 
 2. Copie el módulo provisto (apimock.js) en la misma ruta del módulo antes creado. En éste agréguele más planos (con más puntos) a los autores 'quemados' en el código.
+
+
+```javascript
+    var mockdata=[];
+
+	mockdata["johnconnor"]=	[{author:"johnconnor","points":[{"x":150,"y":120},{"x":215,"y":115}],"name":"house"},
+	 {author:"johnconnor","points":[{"x":40,"y":20},{"x":150,"y":15}],"name":"gear"},
+	 {author:"johnconnor","points":[{"x":20,"y":30},{"x":150,"y":170}, {"x":200,"y":120}, {"x":60,"y":8}],"name":"car"}];
+
+	mockdata["maryweyland"]=[{author:"maryweyland","points":[{"x":140,"y":140},{"x":115,"y":115}],"name":"house2"},
+	 {author:"maryweyland","points":[{"x":140,"y":140},{"x":115,"y":115}],"name":"gear2"},
+	 {author:"maryweyland","points":[{"x":62,"y":54},{"x":220,"y":250}, {"x":70,"y":25}, {"x":39,"y":47}, {"x":162,"y":245}],"name":"car2"}];
+
+```
 
 3. Agregue la importación de los dos nuevos módulos a la página HTML (después de las importaciones de las librerías de jQuery y Bootstrap):
     ```html
@@ -88,6 +140,23 @@
     Junto con una operación pública que permita cambiar el nombre del autor actualmente seleccionado.
 
 
+
+```javascript
+var app = (function(){
+
+   var author = "";
+
+   var setAuthor = function (newAuthor) {
+        author = newAuthor;
+        $('#selectedAuthor').text(author + "'s Blueprints");
+   };
+
+   return {
+       setAuthor,
+     };
+
+})();
+```
 4. Agregue al módulo 'app.js' una operación pública que permita actualizar el listado de los planos, a partir del nombre de su autor (dado como parámetro). Para hacer esto, dicha operación debe invocar la operación 'getBlueprintsByAuthor' del módulo 'apimock' provisto, enviándole como _callback_ una función que:
 
     * Tome el listado de los planos, y le aplique una función 'map' que convierta sus elementos a objetos con sólo el nombre y el número de puntos.
@@ -95,6 +164,49 @@
     * Sobre el listado resultante, haga otro 'map', que tome cada uno de estos elementos, y a través de jQuery agregue un elemento \<tr\> (con los respectvos \<td\>) a la tabla creada en el punto 4. Tenga en cuenta los [selectores de jQuery](https://www.w3schools.com/JQuery/jquery_ref_selectors.asp) y [los tutoriales disponibles en línea](https://www.tutorialrepublic.com/codelab.php?topic=faq&file=jquery-append-and-remove-table-row-dynamically). Por ahora no agregue botones a las filas generadas.
 
     * Sobre cualquiera de los dos listados (el original, o el transformado mediante 'map'), aplique un 'reduce' que calcule el número de puntos. Con este valor, use jQuery para actualizar el campo correspondiente dentro del DOM.
+
+
+
+```javascript
+var app = (function(){
+
+   var author = "";
+
+   var setAuthor = function (newAuthor) {
+        author = newAuthor;
+        $('#selectedAuthor').text(author + "'s Blueprints");
+   };
+
+   var getBlueprintsByAuthor = function(author){
+        apimock.getBlueprintsByAuthor(author, updateTable);
+        setAuthor(author);
+   };
+
+    var updateTable = function(authorsBlueprints){
+         $('#blueprintTable tbody').empty()
+         blueprints = authorsBlueprints.map(bp => ({name: bp.name, numberOfPoints: bp.points.length}));
+         blueprints.map(
+             bp => {
+                var markup = "<tr><td>" + bp.name + "</td><td>" + bp.numberOfPoints + "</td> + <td><button type='button' onclick=\"app.getBlueprintsByNameAndAuthor('"+author+"','"+bp.name+"')\">Open</button></td></tr>";
+                $("#blueprintTable tbody").append(markup);
+                }
+         )
+         var initialValue = 0;
+         var sumWithInitial = blueprints.reduce(
+               (accumulator, bp) => accumulator + bp.numberOfPoints,
+               initialValue,
+         );
+         $('#userPoints').text("Total user points: " + sumWithInitial);
+         clearCanvas();
+   };
+
+   return {
+       setAuthor,
+       getBlueprintsByAuthor
+     };
+
+})();
+```
 
 5. Asocie la operación antes creada (la de app.js) al evento 'on-click' del botón de consulta de la página.
 
@@ -104,15 +216,118 @@
 
 8. A la página, agregue un [elemento de tipo Canvas](https://www.w3schools.com/html/html5_canvas.asp), con su respectivo identificador. Haga que sus dimensiones no sean demasiado grandes para dejar espacio para los otros componentes, pero lo suficiente para poder 'dibujar' los planos.
 
+
+![image](https://github.com/user-attachments/assets/eaf7d897-d741-4182-bb32-3c33ef81ee8e)
+
+
+```html
+    <div class="blueprint-display">
+        <h2 id="blueprintTitle">Current Blueprint: </h2>
+        <canvas id="myCanvas" width="600" height="400" style="border:1px solid #d3d3d3;"></canvas>
+        <br>
+    </div>
+```
+
 9. Al módulo app.js agregue una operación que, dado el nombre de un autor, y el nombre de uno de sus planos dados como parámetros, haciendo uso del método getBlueprintsByNameAndAuthor de apimock.js y de una función _callback_:
     * Consulte los puntos del plano correspondiente, y con los mismos dibuje consectivamente segmentos de recta, haciendo uso [de los elementos HTML5 (Canvas, 2DContext, etc) disponibles](https://www.w3schools.com/html/tryit.asp?filename=tryhtml5_canvas_tut_path)* Actualice con jQuery el campo <div> donde se muestra el nombre del plano que se está dibujando (si dicho campo no existe, agruéguelo al DOM).
 
+
+```javascript
+    var getBlueprintsByNameAndAuthor = function(author, name){
+        api.getBlueprintsByNameAndAuthor(author, name, drawBlueprint);
+   };
+
+    var drawBlueprint = function(blueprint){
+         points = blueprint.points;
+         $('#blueprintTitle').text("Current Blueprint: " + blueprint.name);
+         const c = document.getElementById("myCanvas");
+         const ctx = c.getContext("2d");
+         clearCanvas();
+        
+         const rect = c.getBoundingClientRect();
+        
+         if(points.length != 0){
+            ctx.beginPath();
+            ctx.moveTo(blueprint.points[0].x, blueprint.points[0].y);
+            for (var i = 1 ; i < blueprint.points.length ; i++){
+                ctx.lineTo(blueprint.points[i].x, blueprint.points[i].y);
+                ctx.moveTo(blueprint.points[i].x, blueprint.points[i].y);
+            }
+            ctx.stroke();
+         }
+    
+      };
+```
+
 10. Verifique que la aplicación ahora, además de mostrar el listado de los planos de un autor, permita seleccionar uno de éstos y graficarlo. Para esto, haga que en las filas generadas para el punto 5 incluyan en la última columna un botón con su evento de clic asociado a la operación hecha anteriormente (enviándo como parámetro los nombres correspondientes).
+
+
+![image](https://github.com/user-attachments/assets/df78934c-b285-426e-aeb9-85868c47ce30)
 
 11. Verifique que la aplicación ahora permita: consultar los planos de un auto y graficar aquel que se seleccione.
 
+
+![image](https://github.com/user-attachments/assets/541a3fd1-37a5-499a-9dbc-39e8355c0c96)
+![image](https://github.com/user-attachments/assets/7c390fda-5f73-44b5-9dc7-92a2642c81c3)
+
+
 12. Una vez funcione la aplicación (sólo front-end), haga un módulo (llámelo 'apiclient') que tenga las mismas operaciones del 'apimock', pero que para las mismas use datos reales consultados del API REST. Para lo anterior revise [cómo hacer peticiones GET con jQuery](https://api.jquery.com/jquery.get/), y cómo se maneja el esquema de _callbacks_ en este contexto.
 
+
+```javascript
+apiclient=(function(){
+
+    var getBlueprintsByAuthor = function(authname, callback){
+        $.get("http://localhost:8080/blueprints/"+authname);
+    };
+
+   var getBlueprintsByNameAndAuthor = function(authname, bpname, callback){
+       var promise = $.get("http://localhost:8080/blueprints/"+authname+"/"+bpname)
+    };
+
+	return {
+		getBlueprintsByAuthor,
+		getBlueprintsByNameAndAuthor,
+	};
+
+})();
+```
 13. Modifique el código de app.js de manera que sea posible cambiar entre el 'apimock' y el 'apiclient' con sólo una línea de código.
 
+
+```javascript
+    var api = apiclient;
+
+    var getBlueprintsByAuthor = function(author){
+        api.getBlueprintsByAuthor(author, updateTable);
+        setAuthor(author);
+   };
+
+    var getBlueprintsByNameAndAuthor = function(author, name){
+        api.getBlueprintsByNameAndAuthor(author, name, drawBlueprint);
+   };
+
+    var drawBlueprint = function(blueprint){
+         points = blueprint.points;
+         $('#blueprintTitle').text("Current Blueprint: " + blueprint.name);
+         const c = document.getElementById("myCanvas");
+         const ctx = c.getContext("2d");
+         clearCanvas();
+
+         const rect = c.getBoundingClientRect();
+
+         if(points.length != 0){
+            ctx.beginPath();
+            ctx.moveTo(blueprint.points[0].x, blueprint.points[0].y);
+            for (var i = 1 ; i < blueprint.points.length ; i++){
+                ctx.lineTo(blueprint.points[i].x, blueprint.points[i].y);
+                ctx.moveTo(blueprint.points[i].x, blueprint.points[i].y);
+            }
+            ctx.stroke();
+         }
+
+  };
+```
 14. Revise la [documentación y ejemplos de los estilos de Bootstrap](https://v4-alpha.getbootstrap.com/examples/) (ya incluidos en el ejercicio), agregue los elementos necesarios a la página para que sea más vistosa, y más cercana al mock dado al inicio del enunciado.
+
+
