@@ -594,8 +594,7 @@ apiclient=(function(){
       app.js
 
       ```javascript
-      
-              var getBlueprintsByNameAndAuthor = function(author, name){
+		var getBlueprintsByNameAndAuthor = function(author, name){
 		bpname = name;
 		if($("#deleteButton").length == 0){
 			var deleteButton = $('<button>', {
@@ -608,26 +607,26 @@ apiclient=(function(){
 			$(".button-container").append(deleteButton);
 		}
 		api.getBlueprintsByNameAndAuthor(author, name, drawBlueprint);
-	     };
-      
-             var deleteBlueprint = function(){
+		};
+		
+		var deleteBlueprint = function(){
 		     clearCanvas();
 		     var promise = api.deleteBlueprint(author, bpname);
 		     promise.then(() => api.getBlueprintsByAuthor(author, updateTable));
 		     $('#deleteButton').remove();
-	     };
+		};
       ```
 
       apiclient.js
 
       ```javascript
-           var deleteBlueprint = function(author, bpname){
-	           var promise = $.ajax({
-	               url: 'http://localhost:8080/blueprints/' + author + "/" + bpname,
-	               type: 'DELETE'
-	           })
-	           return promise;
-       	   }
+		var deleteBlueprint = function(author, bpname){
+		   var promise = $.ajax({
+		       url: 'http://localhost:8080/blueprints/' + author + "/" + bpname,
+		       type: 'DELETE'
+		   })
+		   return promise;
+		}
       ```
 
 ### Criterios de evaluación
