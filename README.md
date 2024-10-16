@@ -336,9 +336,59 @@ apiclient=(function(){
 
 1. Agregue al canvas de la página un manejador de eventos que permita capturar los 'clicks' realizados, bien sea a través del mouse, o a través de una pantalla táctil. Para esto, tenga en cuenta [este ejemplo de uso de los eventos de tipo 'PointerEvent'](https://mobiforge.com/design-development/html5-pointer-events-api-combining-touch-mouse-and-pen) (aún no soportado por todos los navegadores) para este fin. Recuerde que a diferencia del ejemplo anterior (donde el código JS está incrustado en la vista), se espera tener la inicialización de los manejadores de eventos correctamente modularizado, tal [como se muestra en este codepen](https://codepen.io/hcadavid/pen/BwWbrw).
 
+```javascript
+	var initCanvas = function(){
+        var c = document.getElementById("myCanvas");
+        var ctx = c.getContext("2d");
+        if(window.PointerEvent) {
+            c.addEventListener("pointerdown", function(event){
+                alert('pointerdown at '+event.pageX+','+event.pageY);
+            });
+        }
+        else {
+            c.addEventListener("mousedown", function(event){
+                alert('mousedown at '+event.clientX+','+event.clientY); 
+            });
+        }
+   };
+```
+
 2. Agregue lo que haga falta en sus módulos para que cuando se capturen nuevos puntos en el canvas abierto (si no se ha seleccionado un canvas NO se debe hacer nada):
 	1. Se agregue el punto al final de la secuencia de puntos del canvas actual (sólo en la memoria de la aplicación, AÚN NO EN EL API!).
 	2. Se repinte el dibujo.
+
+```javascript
+	var initCanvas = function(){
+        var c = document.getElementById("myCanvas");
+        var ctx = c.getContext("2d");
+        if(window.PointerEvent) {
+            c.addEventListener("pointerdown", function(event){
+                if(bpname != "" || createBp){
+                    const rect = c.getBoundingClientRect();
+                    var posX = event.clientX - Math.floor(rect.left);
+                    var posY = event.clientY - Math.floor(rect.top);
+                    points.push({"x": posX, "y": posY});
+                    ctx.lineTo(posX, posY);
+                    ctx.moveTo(posX, posY);
+                    ctx.stroke();
+                }
+            });
+        }
+        else {
+            c.addEventListener("mousedown", function(event){
+                if(bpname != "" || createBp){
+                    const rect = c.getBoundingClientRect();
+                    var posX = event.pageX - Math.floor(rect.left);
+                    var posY = event.pageY - Math.floor(rect.top);
+                    points.push({"x": posX, "y": posY});
+                    ctx.lineTo(posX, posY);
+                    ctx.moveTo(posX, posY);
+                    ctx.stroke();
+                }
+            });
+        }
+   };
+```
 
 3. Agregue el botón Save/Update. Respetando la arquitectura de módulos actual del cliente, haga que al oprimirse el botón:
 	1. Se haga PUT al API, con el plano actualizado, en su recurso REST correspondiente.
@@ -365,6 +415,104 @@ apiclient=(function(){
 	```
 	* Como en este caso se tienen tres operaciones basadas en _callbacks_, y que las mismas requieren realizarse en un orden específico, tenga en cuenta cómo usar las promesas de JavaScript [mediante alguno de los ejemplos disponibles](http://codepen.io/hcadavid/pen/jrwdgK).
 
+	app.js
+	
+	```javascript
+		var drawBlueprint = function(blueprint){
+			 points = blueprint.points;
+			 $('#blueprintTitle').text("Current Blueprint: " + blueprint.name);
+			 const c = document.getElementById("myCanvas");
+			 const ctx = c.getContext("2d");
+			 clearCanvas();
+	
+			 const rect = c.getBoundingClientRect();
+	
+			 if(points.length != 0){
+				ctx.beginPath();
+				ctx.moveTo(blueprint.points[0].x, blueprint.points[0].y);
+				for (var i = 1 ; i < blueprint.points.length ; i++){
+					ctx.lineTo(blueprint.points[i].x, blueprint.points[i].y);
+					ctx.moveTo(blueprint.points[i].x, blueprint.points[i].y);
+				}
+				ctx.stroke();
+			 }
+	
+		};
+		
+		var updateTable = function(authorsBlueprints){
+			 $('#blueprintTable tbody').empty()
+			 blueprints = authorsBlueprints.map(bp => ({name: bp.name, numberOfPoints: bp.points.length}));
+			 blueprints.map(
+				 bp => {
+					var markup = "<tr><td>" + bp.name + "</td><td>" + bp.numberOfPoints + "</td> + <td><button type='button' class='openButton' onclick=\"app.getBlueprintsByNameAndAuthor('"+author+"','"+bp.name+"')\">Open</button></td></tr>";
+					$("#blueprintTable tbody").append(markup);
+					}
+			 )
+			 var initialValue = 0;
+			 var sumWithInitial = blueprints.reduce(
+				   (accumulator, bp) => accumulator + bp.numberOfPoints,
+				   initialValue,
+			 );
+			 $('#userPoints').text("Total user points: " + sumWithInitial);
+			 clearCanvas();
+	   };
+	
+		var saveBlueprint = function(){
+			var promise = api.updateBlueprint(author, bpname, points);
+			promise.then(() => api.getBlueprintsByAuthor(author, updateTable))
+				   .then(() => api.getBlueprintsByNameAndAuthor(author, bpname, drawBlueprint));
+	   };
+	```
+	
+	apiclient.js
+	
+	```javascript
+		var getBlueprintsByAuthor = function(authname, callback){
+			var promise = $.get("http://localhost:8080/blueprints/"+authname);
+			promise.then(
+				function(data) {
+					callback(JSON.parse(JSON.stringify(data, null, 2)));
+				},
+				function () {
+					$('#blueprintTable tbody').empty();
+					location.reload();
+				}
+			)
+			return promise;
+		};
+	
+	   var getBlueprintsByNameAndAuthor = function(authname, bpname, callback){
+		   var promise = $.get("http://localhost:8080/blueprints/"+authname+"/"+bpname)
+		   promise.then(
+				function(data) {
+					callback(JSON.parse(JSON.stringify(data, null, 2)));
+				},
+				function () {
+					alert("Failed Name and Author!");
+				}
+		   );
+		   return promise;
+		};
+	
+		var updateBlueprint = function(authname, bpname, points){
+			var promise = $.ajax({
+				url: 'http://localhost:8080/blueprints/' + authname + "/" + bpname,
+				type: 'PUT',
+				data: JSON.stringify(points),
+				contentType: "application/json"
+			})
+			return promise;
+		}
+	```
+ 
+	index.html
+   ```html
+      <div class="button-container">
+				<button type="button" id="saveButton" onclick="app.saveBlueprint()">Save/Update Blueprint</button>
+			   </div>
+   ```
+
+
 4. Agregue el botón 'Create new blueprint', de manera que cuando se oprima: 
 	* Se borre el canvas actual.
 	* Se solicite el nombre del nuevo 'blueprint' (usted decide la manera de hacerlo).
@@ -374,10 +522,114 @@ apiclient=(function(){
 	1. Hacer POST al recurso /blueprints, para crear el nuevo plano.
 	2. Hacer GET a este mismo recurso, para actualizar el listado de planos y el puntaje del usuario.
 
-5. Agregue el botón 'DELETE', de manera que (también con promesas):
-	* Borre el canvas.
-	* Haga DELETE del recurso correspondiente.
-	* Haga GET de los planos ahora disponibles.
+	app.js
+
+   ```javascript
+   		var createBp = false;
+   
+		var createBlueprint = function(){
+			createBp = true;
+			clearCanvas();
+			points = [];
+			if($("#blueprintName").length == 0){
+				var inputElement = $('<input>', {
+					type: 'text',
+					id: 'blueprintName',
+					placeholder: 'Ingrese el nombre del plano',
+					size: 30
+				});
+				$(".create-blueprint").append(inputElement);
+			}
+   		};
+   
+   		var saveBlueprint = function(){
+			var promise;
+			if(createBp){
+				bpname = $('#blueprintName').val();
+	
+				if (points.length < 2) {
+					alert("Error: El plano debe tener al menos dos puntos.");
+					return;
+				}
+				promise = api.createBlueprint(author, points, bpname);
+				createBp = false;
+				$('#blueprintName').remove();
+			}
+			else{
+				promise = api.updateBlueprint(author, bpname, points);
+			}
+			promise.then(() => api.getBlueprintsByAuthor(author, updateTable))
+				   .then(() => api.getBlueprintsByNameAndAuthor(author, bpname, drawBlueprint));
+   		};
+   ```
+
+	apiclient.js
+
+   ```javascript
+   		var createBlueprint = function(author, points, bpname){
+			var json = JSON.stringify({ author: author, points: points, name: bpname });
+			var promise = $.ajax({
+				url: 'http://localhost:8080/blueprints',
+				type: 'POST',
+				data: json,
+				contentType: "application/json"
+			})
+			return promise;
+    	}
+   ```
+
+	index.html
+
+   ```javascript
+   		<div class="create-blueprint">
+						<button type="button" id="createButton" onclick="app.createBlueprint()">Create Blueprint</button>
+                   </div>
+   ```
+
+   5. Agregue el botón 'DELETE', de manera que (también con promesas):
+       * Borre el canvas.
+       * Haga DELETE del recurso correspondiente.
+       * Haga GET de los planos ahora disponibles.
+
+      app.js
+
+      ```javascript
+      
+      		var getBlueprintsByNameAndAuthor = function(author, name){
+						bpname = name;
+						if($("#deleteButton").length == 0){
+							var deleteButton = $('<button>', {
+								id: 'deleteButton',
+								text: 'Delete Blueprint',
+								click: function() {
+									deleteBlueprint();
+								}
+							});
+							$(".button-container").append(deleteButton);
+						}
+						api.getBlueprintsByNameAndAuthor(author, name, drawBlueprint);
+				   };
+      
+            var deleteBlueprint = function(){
+					 clearCanvas();
+                     var promise = api.deleteBlueprint(author, bpname);
+                     promise.then(() => api.getBlueprintsByAuthor(author, updateTable));
+                     $('#deleteButton').remove();
+   			};
+      ```
+
+      apiclient.js
+
+      ```javascript
+           var deleteBlueprint = function(author, bpname){
+           var promise = $.ajax({
+               url: 'http://localhost:8080/blueprints/' + author + "/" + bpname,
+               type: 'DELETE'
+           })
+
+           return promise;
+       	   }
+      ```
 
 ### Criterios de evaluación
 
