@@ -1,7 +1,38 @@
+# Ejercicio: Diseño de un Cliente Web Básico
+
 ### Escuela Colombiana de Ingeniería
 ### Arquiecturas de Software
 
 ### Mauricio Monroy y Samuel Rojas
+
+## Descripción
+El objetivo de este ejercicio es diseñar un cliente web básico utilizando los lenguajes **HTML**, **JavaScript** y **CSS**.
+
+## Funcionamiento Cliente Web
+
+Se ingresa a la página a través del enlace http://localhost:8080/index.html. Los autores disponibles para buscar son Carlos y Felipe, si se quiere obtener los planos de alguno de ellos, se coloca su nombre en el input disponible para el autor y luego se presiona el botón "Get Blueprints".
+
+![image](https://github.com/user-attachments/assets/1f6ccfd5-403c-4f54-b788-540e6a5f50f9)
+
+Una vez cargados los planos, se puede observar cada uno de ellos al presionar el botón "Open" al lado del plano a elegir y se desplegará en el Canvas el dibujo de este junto con un nuevo botón en caso de que se quiera eliminarlo.
+
+![image](https://github.com/user-attachments/assets/516c5abd-b3e6-4dca-b0dd-799ced8ca4be)
+
+Si se quiere modificar el plano, se debe presionar directamente sobre el Canvas los nuevos puntos que se quieren añadir y luego se pulsa el botón "Save/Update Blueprint". Esto también actualizará los puntos totales de los planos del autor.
+
+![image](https://github.com/user-attachments/assets/164d558e-007e-4a24-a82e-e85d91280c01)
+![image](https://github.com/user-attachments/assets/d28dfe59-4c7b-46f7-aee0-b3243f473369)
+
+Para eliminar un plano, primero se debe abrir el plano a eliminar y luego pulsar el botón "Delete Blueprint". 
+
+![image](https://github.com/user-attachments/assets/4a0e03c8-b613-4237-ad38-4febd4c50f51)
+![image](https://github.com/user-attachments/assets/4683c522-6c72-4038-b7fd-742b0d040946)
+
+Finalmente, si se quiere crear un nuevo plano se tiene que buscar primero a un autor, ya que no permitimos la opción de agregar nuevos a nuestra API, luego se presiona el botón "Create Blueprint", se elige el nombre del plano a crear, se dibuja sobre el canvas al menos dos puntos (una línea) para poder guardar el plano y por último se presiona el botón "Save/Update Blueprint".
+
+![image](https://github.com/user-attachments/assets/926ecbf9-238d-4bdb-a8f4-8c0c33d89b2a)
+![image](https://github.com/user-attachments/assets/2c9668e4-2dca-42cb-9c36-a8939d457e3c)
+![image](https://github.com/user-attachments/assets/1de0641d-dbba-4c72-b040-0f7294957b1b)
 
 ## Construción de un cliente 'grueso' con un API REST, HTML5, Javascript y CSS3. Parte I.
 
@@ -639,3 +670,11 @@ apiclient=(function(){
 2. Diseño
 	* Los callback usados al momento de cargar los planos y calcular los puntos de un autor NO hace uso de ciclos, sino de operaciones map/reduce.
 	* Las operaciones de actualización y borrado hacen uso de promesas para garantizar que el cálculo del puntaje se realice sólo hasta cando se hayan actualizados los datos en el backend. Si se usan callbacks anidados se evalúa como R.
+
+## Entrega
+- Deben entregar el código fuente completo y un archivo **README** explicando el funcionamiento de su cliente web.
+- Asegúrense de probar su proyecto en diferentes navegadores para verificar su compatibilidad.
+  
+El plazo de entrega es el descrito en la tarea de teams.
+
+¡Éxito con el desarrollo de su cliente web!
