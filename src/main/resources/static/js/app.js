@@ -115,6 +115,11 @@ var app = (function(){
         var promise;
         if(createBp){
             bpname = $('#blueprintName').val();
+
+            if (points.length < 2) {
+                alert("Error: El plano debe tener al menos dos puntos.");
+                return;
+            }
             promise = api.createBlueprint(author, points, bpname);
             createBp = false;
             $('#blueprintName').remove();
